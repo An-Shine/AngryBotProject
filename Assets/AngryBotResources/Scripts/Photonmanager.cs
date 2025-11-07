@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using UnityEditor.ShaderGraph.Internal;
 
 public class PhotonManager : MonoBehaviourPunCallbacks
 {
@@ -41,9 +42,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnJoinedLobby()
     {
         Debug.Log($"PhotonNetwork.InLobby - {PhotonNetwork.InLobby}");
+        PhotonNetwork.JoinRandomRoom();
     }
 
-    //랜덤한 룸 입장이 실패했을경우 호출되는 롤백함수
+    //랜덤한 룸 입장이 실패했을경우 호출되는 콜백함수
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
         Debug.Log($"JoinRandom Failed{returnCode} : {message}");
@@ -53,6 +55,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         ro.MaxPlayers = 20;     //입장가능한 최대접속자 수
         ro.IsOpen = true;       //룸의 오픈 여부
         ro.IsVisible = true;    //로비에서 룸 목록에 노출시킬지 여부
+
+        //룸 생성
+        PhotonNetwork.CreateRoom("My Room", ro);
 
     }
 
@@ -68,11 +73,21 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         Debug.Log($"PhotonNetwork.InRoom = {PhotonNetwork.InRoom}");
         Debug.Log($"Player Count = {PhotonNetwork.CurrentRoom.PlayerCount}");
-        foreach(var player in PhotonNetwork.CurrentRoom.Players)
+
+        foreach (var player in PhotonNetwork.CurrentRoom.Players)
         {
             Debug.Log($"{player.Value.NickName} , {player.Value.ActorNumber}");
         }
+
+        //출현 위치정보를 배열에 저장
+        Transform[] points = GameObject.Find("SpawnPointGroup").GetComponentsInChildren<Transform>();
+        int idx = Random.Range(1, points.Length);
+
+        //네트워크상에 캐릭터 생성
+        PhotonNetwork.Instantiate("Player", points[idx].position, points[idx].rotation, 0);
     }
+
+    
 
 }
 

@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
+using Photon.Pun;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 public class Movement : MonoBehaviour
@@ -15,6 +18,8 @@ public class Movement : MonoBehaviour
     Plane plane;
     Ray ray;
     Vector3 hitPoint;
+    PhotonView pv;
+    CinemachineVirtualCamera virtualCamera;
 
     //이동속도
     public float moveSpeed = 10.0f;
@@ -24,7 +29,17 @@ public class Movement : MonoBehaviour
         controller = GetComponent<CharacterController>();
         transform = GetComponent<Transform>();
         animator = GetComponent<Animator>();
-        camera = Camera.main;
+        camera = Camera.main;       
+
+        pv = GetComponent<PhotonView>();
+        virtualCamera = GameObject.FindObjectOfType<CinemachineVirtualCamera>();
+
+        //PhotonView가 자신의 것일 경우 시네머신 가상카메라를 연결
+        if(pv.IsMine)
+        {
+            virtualCamera.Follow = transform;
+            virtualCamera.LookAt = transform;
+        }
 
         //가상의 바닥을 주인공 위치를 기준으로 생성
         plane = new Plane(transform.up, transform.position);
@@ -35,8 +50,11 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Move();
-        Turn();
+        if(pv.IsMine)
+        {
+            Move();
+            Turn();
+        }        
     }
 
     //키보드 입력값 연결
