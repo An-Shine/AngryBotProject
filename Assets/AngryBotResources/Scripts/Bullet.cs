@@ -1,0 +1,25 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Bullet : MonoBehaviour
+{
+    public GameObject effect;
+    void Start()
+    {
+        GetComponent<Rigidbody>().AddRelativeForce(Vector3.forward * 1000.0f);
+        //일정시간 지난 후 총알 삭제
+        Destroy(this.gameObject, 3.0f);
+    }
+
+    void OnCollisionEnter(Collision coll)
+    {
+        //충돌지점 추출
+        var contact = coll.GetContact(0);
+        //충돌지점에 스파크이펙트 생성
+        var obj = Instantiate(effect, contact.point, Quaternion.LookRotation(-contact.normal));
+        Destroy(obj, 2.0f);
+        Destroy(this.gameObject);
+    }    
+   
+}

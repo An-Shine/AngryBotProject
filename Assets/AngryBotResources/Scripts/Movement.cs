@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
 using Photon.Pun;
+using Photon.Realtime;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
@@ -24,6 +25,9 @@ public class Movement : MonoBehaviour
     //이동속도
     public float moveSpeed = 10.0f;
 
+    Vector3 receivePos;
+    Quaternion receiveRot;
+    public float damping = 10.0f;
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -50,11 +54,19 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(pv.IsMine)
+        if (pv.IsMine)
         {
             Move();
             Turn();
-        }        
+        }
+        else
+        {
+            //수신된 좌표로 보간한 이동처리
+            transform.position = Vector3.Lerp(transform.position, receivePos, Time.deltaTime * damping);
+
+            //수신된 회전값으로 보간한 회전처러
+            transform.rotation = Quaternion.Slerp(transform.rotation, receiveRot, Time.deltaTime * damping);
+        }
     }
 
     //키보드 입력값 연결
@@ -80,7 +92,7 @@ public class Movement : MonoBehaviour
         animator.SetFloat("Forward", forward);
         animator.SetFloat("Strafe", strafe);
     }
-    
+
     void Turn()
     {
         //마우스의 2차원 좌표값을 이용해서 3차원광선(레이)을 생성
@@ -95,5 +107,20 @@ public class Movement : MonoBehaviour
         //주인공의 캐릭터의 회전값 지정
         transform.localRotation = Quaternion.LookRotation(lookDir);
 
+    }
+    
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        //자신의 로컬 캐릭터인 경우 자신의 데이터를 다른 네트워크 유저에게 송신
+        if (stream.IsWriting)
+        {
+            stream.SendNext(transform.position);
+            stream.SendNext(transform.rotation);
+        }
+        else
+        {
+            receivePos = (Vector3)stream.ReceiveNext();
+            receiveRot = (Quaternion)stream.ReceiveNext();
+        }
     }
 }

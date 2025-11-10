@@ -898,6 +898,7 @@ GameObject:
   - component: {fileID: 2034113822523424379}
   - component: {fileID: 8378094468149336655}
   - component: {fileID: 6069551612075120210}
+  - component: {fileID: 8286077926085087904}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -977,6 +978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 10
+  damping: 10
 --- !u!114 &2034113822523424379
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1050,6 +1052,20 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &8286077926085087904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6753354356736052303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 289288a729b84bd4d95a45539ed7c494, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  firePos: {fileID: 1895926037053503276}
+  bulletPrefab: {fileID: 8222332823237018225, guid: bbfb9a20b68ab4c3f830a9872b675b34, type: 3}
 --- !u!1 &6753354356736052305
 GameObject:
   m_ObjectHideFlags: 0

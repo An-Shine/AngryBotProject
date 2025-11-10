@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
-using UnityEditor.ShaderGraph.Internal;
+
 
 public class PhotonManager : MonoBehaviourPunCallbacks
 {
