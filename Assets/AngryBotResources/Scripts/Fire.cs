@@ -30,6 +30,7 @@ public class Fire : MonoBehaviour
             pv.RPC("FireBullet", RpcTarget.Others, null);
         }
     }
+    [PunRPC]
     void FireBullet()
     {
         //총구화염효과가 실행중이 아닌 경우에 총구화염효과 실행

@@ -25,8 +25,11 @@ public class Movement : MonoBehaviour
     //이동속도
     public float moveSpeed = 10.0f;
 
+    //수신된 위치와 회전값을 저장할 변수
     Vector3 receivePos;
     Quaternion receiveRot;
+
+    //수신된 좌표로의 이동 및 회전속도의 민감도
     public float damping = 10.0f;
     void Start()
     {
@@ -54,6 +57,7 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //자신이 생성한 네트워크객체만 컨트롤
         if (pv.IsMine)
         {
             Move();
@@ -86,13 +90,15 @@ public class Movement : MonoBehaviour
 
         //주인공 캐릭터 이동처리
         controller.SimpleMove(moveDir * moveSpeed);
+
         //주인공 캐릭터 애니메이션 처리
         float forward = Vector3.Dot(moveDir, transform.forward);
         float strafe = Vector3.Dot(moveDir, transform.right);
+
         animator.SetFloat("Forward", forward);
         animator.SetFloat("Strafe", strafe);
     }
-
+    //회전처리함수
     void Turn()
     {
         //마우스의 2차원 좌표값을 이용해서 3차원광선(레이)을 생성
@@ -104,6 +110,8 @@ public class Movement : MonoBehaviour
         hitPoint = ray.GetPoint(enter);
         //회전해야할 방향의 벡터를 계산
         Vector3 lookDir = hitPoint - transform.position;
+        lookDir.y = 0;
+        
         //주인공의 캐릭터의 회전값 지정
         transform.localRotation = Quaternion.LookRotation(lookDir);
 

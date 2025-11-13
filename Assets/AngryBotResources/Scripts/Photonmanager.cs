@@ -4,6 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
+using UnityEngine.UIElements;
 
 
 public class PhotonManager : MonoBehaviourPunCallbacks
@@ -15,6 +16,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public TMP_InputField userIF;
     public TMP_InputField roomNameIF;
+    //룸 목록에대한 데이터를 저장하기위한 딕셔너리 자료형    
+    Dictionary<string, GameObject>rooms = new Dictionary<string, GameObject>();
+    //룸 목록을 표시할 프리펩
+    GameObject roomItemPrefab;
+    //RoomItem 프리펩이 추가될 ScrollContent
+    public Transform scrollContent;
 
     void Awake()
     {
@@ -29,9 +36,15 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         //포톤 서버와의 데이터 초당 전송횟수 설정
         Debug.Log(PhotonNetwork.SendRate);
+        roomItemPrefab = Resources.Load<GameObject>("RoomItem");
 
         //포톤 서버 접속
-        PhotonNetwork.ConnectUsingSettings();
+        if(PhotonNetwork.IsConnected == false)
+        {
+            PhotonNetwork.ConnectUsingSettings();
+        }
+        
+
     }
 
     void Start()
@@ -71,7 +84,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinLobby();
     }
 
-    //로비에접속 후 호출되는 콜백함수
+    //로비에 접속 후 호출되는 콜백함수
     public override void OnJoinedLobby()
     {
         Debug.Log($"PhotonNetwork.InLobby - {PhotonNetwork.InLobby}");
@@ -129,11 +142,31 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        foreach(var room in roomList)
+        GameObject tempRoom = null;
+        foreach(var roomInfo in roomList)
         {
-            //room.Tostring();
-            Debug.Log($"Room = {room.Name} ({room.PlayerCount}/{room.MaxPlayers})");
-        }
+            if(roomInfo.RemovedFromList == true)        //룸인포에서 삭제가된 경우
+            {
+                rooms.TryGetValue(roomInfo.Name, out tempRoom);
+                Destroy(tempRoom);
+                rooms.Remove(roomInfo.Name);
+            }
+            else
+            {
+                if(rooms.ContainsKey(roomInfo.Name)==false)
+                {
+                    GameObject roomPrefab = Instantiate(roomItemPrefab, scrollContent);
+                    roomPrefab.GetComponent<RoomData>().RoomInfo= roomInfo;
+                    rooms.Add(roomInfo.Name, roomPrefab);
+                }
+                else
+                {
+                    rooms.TryGetValue(roomInfo.Name, out tempRoom);
+                    tempRoom.GetComponent<RoomData>().RoomInfo = roomInfo;
+                }
+            }
+            Debug.Log($"Room = {roomInfo.Name} ({roomInfo.PlayerCount}/{roomInfo.MaxPlayers})");        
+        }          
     }
 #region UI_BUTTON_EVENT
     public void OnLoginClick()
