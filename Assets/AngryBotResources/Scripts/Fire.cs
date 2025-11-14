@@ -25,18 +25,20 @@ public class Fire : MonoBehaviour
         //로컬유저 여부와 마우스 왼쪽버튼을 클릭했을 때 총알 발사
         if (pv.IsMine && isMouseClick)
         {
-            FireBullet();
+            FireBullet(pv.Owner.ActorNumber);
             //RPC 로 원격지에 있는 함수를 호출
-            pv.RPC("FireBullet", RpcTarget.Others, null);
+            pv.RPC("FireBullet", RpcTarget.Others, pv.owner.ActorNumber);
+
         }
     }
     [PunRPC]
-    void FireBullet()
+    void FireBullet(int actorNo)
     {
         //총구화염효과가 실행중이 아닌 경우에 총구화염효과 실행
         if (!muzzleFlash.isPlaying) muzzleFlash.Play(true);
 
         GameObject bullet = Instantiate(bulletPrefab, firePos.position, firePos.rotation);
+        bullet.GetComponent<Bullet>().actorNumber = actorNo;
     }
 }
 
